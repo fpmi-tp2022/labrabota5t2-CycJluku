@@ -10,8 +10,8 @@
 #include "sqlite3.h" 
 #include "string.h"
 
-short access; 
-
+static short access = FALSE;
+ 
 void Registraion(sqlite3* db);
 void Login(sqlite3* db);
 short executeSQL(sqlite3* db, const char* sql, int(*callback)(void*, int, char**, char**), void* data, short success_inform);

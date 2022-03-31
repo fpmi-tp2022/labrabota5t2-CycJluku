@@ -1,7 +1,5 @@
 #include "../include/server.h"
 
-exec = FALSE;
-
 int printTable(void* data, int argc, char** argv, char** azColName)
 {
     for (int i = 0; i < argc; i++) {
@@ -78,7 +76,7 @@ int findLogin(void* data, int argc, char** argv, char** azColName)
 }
 void AskParameterByID(sqlite3 *db, char* sql_print, char* msg, char* sql_aim, short isEnd)
 {
-    printf(msg);
+    printf("%s", msg);
     executeSQL(db, sql_print, printTable, NULL, FALSE);
     printf("\ninput>");
     AskParameter(NULL, sql_aim, TRUE, isEnd);
