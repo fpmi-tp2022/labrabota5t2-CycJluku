@@ -128,6 +128,7 @@ void Login(sqlite3* db)
 
     strcat(sql, login);
     strcat(sql, " and password=");
+    strcat(sql, password);
     strcat(sql, ";");
 
     executeSQL(db, sql, findLogin, NULL, TRUE);
