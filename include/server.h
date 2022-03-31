@@ -10,7 +10,9 @@
 #include "sqlite3.h" 
 #include "string.h"
 
-short access; 
+static short access = FALSE;
+static short isCommander = FALSE;
+static char current_buff[100];
 
 void Registraion(sqlite3* db);
 void Login(sqlite3* db);
