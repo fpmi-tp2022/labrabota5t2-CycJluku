@@ -1,5 +1,7 @@
 # Makefile for lab 5
 
+all: bin/program
+
 bin/program: obj/main.o obj/server.o
 	gcc -o bin/program  obj/main.o obj/server.o -l sqlite3
 
