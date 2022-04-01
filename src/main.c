@@ -46,7 +46,7 @@ int main()
             Login(db);
             break;
         case 3:
-
+            AdminAction(db);
             break;
         case 4:
             sqlite3_close(db);
