@@ -186,10 +186,11 @@ void getInfo(sqlite3* db)
     if (isCommander)
     {
         printf("Choose info type:\n"
-                "1. MY DATA\n"
-                "2. HELICOPTERS;\n"
-                "3. CREWS;\n"
-                "4. FLIGHTS\n");
+            "1. MY DATA\n"
+            "2. HELICOPTERS;\n"
+            "3. CREWS;\n"
+            "4. FLIGHTS;\n"
+            "5. TOTAL SPECIAL FLIGHTS STATISTICS;\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -213,12 +214,14 @@ void getInfo(sqlite3* db)
             strcpy(sql, "Select Flights.id, Flights_helicopter_id, Flights.date, Flights.mass_cargo, Flights.duration, Flights.price, "
                 "Types.name from Flights inner join Types where Flights.type_id=Types.id;");
             break;
+        case 5:
+            strcpy(sql, "Select Count(Flights.id) as total_flights_amount, Sum(Flights.mass_cargo) as total_mass_cargo, Sum(Flights.price) as total_price from Flights "
+                " inner join Types on Flights.type_id = Types.id where Types.id=Special");
+            break;
         default:
             printf("\nWrong parameter");
             return;
         }
-
-        executeSQL(db, sql, printTable, NULL, FALSE);
     }
     else
     {
@@ -247,5 +250,7 @@ void getInfo(sqlite3* db)
             return;
         }
     }
+
+    executeSQL(db, sql, printTable, NULL, FALSE);
 
 }
