@@ -23,6 +23,7 @@ int main()
 
     char buff[20];
     int des;
+    start:
     while (!access)
     {
         printf("\nChoose the action:\n"
@@ -47,6 +48,31 @@ int main()
         case 4:
             sqlite3_close(db);
             return 0;
+        default:
+            fprintf(stderr, "\nWrong parameter");
+        }
+    }
+    
+     while (TRUE)
+    {
+        printf("Choose the action:\n"
+                "1. GET INFO;\n"
+                "2. EXIT\n");
+
+        fgets(buff, 20, stdin);
+        des = atoi(buff);
+
+        switch (des)
+        {
+        case 1:
+            getInfo(db);
+            break;
+        case 2:
+            strcpy(current_ID, "0");
+            access = FALSE;
+            isCommander = FALSE;
+            goto start;
+            break;
         default:
             fprintf(stderr, "\nWrong parameter");
         }

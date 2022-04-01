@@ -13,9 +13,11 @@
 static short access = FALSE;
 static short isCommander = FALSE;
 static char current_buff[100];
+static char current_ID[20];
 
 void Registraion(sqlite3* db);
 void Login(sqlite3* db);
+void getInfo(sqlite3* db);
 short executeSQL(sqlite3* db, const char* sql, int(*callback)(void*, int, char**, char**), void* data, short success_inform);
 
 #endif

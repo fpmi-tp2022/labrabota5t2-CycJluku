@@ -72,6 +72,7 @@ int findLogin(void* data, int argc, char** argv, char** azColName)
 {
     for (int i = 0; i < argc; i++) {
         access = TRUE;
+        strcpy(current_ID, argv[i]);
         break;
     }
     return 0;
@@ -88,6 +89,19 @@ int CheckIsCommander(void* data, int argc, char** argv, char** azColName)
     }
     return 0;
 }
+
+int getCurrentID(void* data, int argc, char** argv, char** azColName)
+{
+    for (int i = 0; i < argc; i++) {
+        if (!strcmp("Commander", argv[i]))
+        {
+            strcpy(current_ID, argv[i]);
+            break;
+        }
+    }
+    return 0;
+}
+
 void AskParameterByID(sqlite3 *db, char* sql_print, char* msg, char* sql_aim, short isEnd)
 {
     printf("%s", msg);
@@ -124,6 +138,9 @@ void Registraion(sqlite3* db)
         strcat(sql_position, position_choice);
         strcat(sql_position, ";");
         executeSQL(db, sql_position, CheckIsCommander, NULL, FALSE);
+
+        char sql_id[] = "Select Max(id) from Pilots;";
+        executeSQL(db, sql_id, getCurrentID, NULL, FALSE);
     }
 
 }
@@ -159,4 +176,76 @@ void Login(sqlite3* db)
         strcat(sql_position, ";");
         executeSQL(db, sql_position, CheckIsCommander, NULL, FALSE);
     }
+}
+
+void getInfo(sqlite3* db)
+{
+    char buff[20];
+    char sql[500];
+    int des;
+    if (isCommander)
+    {
+        printf("Choose info type:\n"
+                "1. MY DATA\n"
+                "2. HELICOPTERS;\n"
+                "3. CREWS;\n"
+                "4. FLIGHTS\n");
+
+        fgets(buff, 20, stdin);
+        des = atoi(buff);
+
+        switch (des)
+        {
+        case 1:
+            strcpy(sql, "Select Pilots.id, Pilots.surname, Positions.name, Pilots.experience, Pilots.address, Pilots.birth_year, "
+                "Pilots.helicopter_id from Pilots inner join Positions on Pilots.position_id=Positions.ID where Pilots.ID=");
+            strcat(sql, current_ID);
+            strcat(sql, ";");
+            break;
+        case 2:
+            strcpy(sql, "Select * from Helicopters;");
+            break;
+        case 3:
+            strcpy(sql, "Select Pilots.id, Pilots.surname, Positions.name, Pilots.experience, Pilots.address, Pilots.birth_year, "
+                "Pilots.helicopter_id from Pilots inner join Positions on Pilots.position_id=Positions.id order by Pilots.helicopter_id;");
+            break;
+        case 4:
+            strcpy(sql, "Select Flights.id, Flights_helicopter_id, Flights.date, Flights.mass_cargo, Flights.duration, Flights.price, "
+                "Types.name from Flights inner join Types where Flights.type_id=Types.id;");
+            break;
+        default:
+            printf("\nWrong parameter");
+            return;
+        }
+
+        executeSQL(db, sql, printTable, NULL, FALSE);
+    }
+    else
+    {
+        printf("Choose info type:\n"
+            "1. MY DATA;\n"
+            "2. MY HELICOPTER;\n");
+
+        fgets(buff, 20, stdin);
+        des = atoi(buff);
+
+        switch (des)
+        {
+        case 1:
+            strcpy(sql, "Select Pilots.id, Pilots.surname, Positions.name, Pilots.experience, Pilots.address, Pilots.birth_year, "
+                "Pilots.helicopter_id from Pilots inner join Positions on Pilots.position_id=Positions.ID where Pilots.ID=");
+            strcat(sql, current_ID);
+            strcat(sql, ";");
+            break;
+        case 2:
+            strcpy(sql, "Select Helicopters.* from Helicopters inner join Pilots on Helicopters.id=Pilots.helicopter_id where Pilots.id=");
+            strcat(sql, current_ID);
+            strcat(sql, ";");
+            break;
+        default:
+            printf("\nWrong parameter");
+            return;
+        }
+    }
+
 }
