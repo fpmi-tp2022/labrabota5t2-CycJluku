@@ -13,6 +13,9 @@
 void Registraion(sqlite3* db);
 void Login(sqlite3* db);
 void getInfo(sqlite3* db);
+void AdminAction(sqlite3* db);
+void InsertIntoDB(sqlite3* db);
+void SelectDeleteFromDB(sqlite3* db, short to_delete);
 short executeSQL(sqlite3* db, const char* sql, int(*callback)(void*, int, char**, char**), void* data, short success_inform);
 #endif
 

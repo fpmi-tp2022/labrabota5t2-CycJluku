@@ -338,3 +338,161 @@ void getInfo(sqlite3* db)
     executeSQL(db, sql, printTable, NULL, FALSE);
 
 }
+
+void InsertIntoDB(sqlite3* db)
+{
+    char sql[100] = "INSERT INTO ";
+
+    char buff[20];
+    int des;
+    printf("\nChoose the table:\n"
+        "1. Helicopters;\n"
+        "2. Flights;\n");
+
+    fgets(buff, 20, stdin);
+    des = atoi(buff);
+
+    if (des == 1)
+    {
+        strcat(sql, " Helicopters values(null, ");
+
+        AskParameter("\nEnter brand: ", sql, FALSE, FALSE);
+
+        AskParameter("\nEnter production date(yyyy-mm-dd): ", sql, FALSE, FALSE);
+
+        AskParameter("\nEnter load capacity: ", sql, TRUE, FALSE);
+
+        AskParameter("\nEnter last overhaul date: ", sql, FALSE, FALSE);
+
+        AskParameter("\nEnter flight resource: ", sql, TRUE, TRUE);
+    }
+    else if (des == 2)
+    {
+        strcat(sql, " Flights values(null, ");
+
+        AskParameterByID(db, "Select id, brand from Helicopters;", "\nChoose helicopter by ID: ", sql, FALSE);
+
+        AskParameter("\nEnter date(yyyy-mm-dd): ", sql, FALSE, FALSE);
+
+        AskParameter("\nEnter mass cargo: ", sql, TRUE, FALSE);
+
+        AskParameter("\nEnter people amount: ", sql, TRUE, FALSE);
+
+        AskParameter("\nEnter price: ", sql, TRUE, FALSE);
+
+        AskParameterByID(db, "Select * from Types;", "\nChoose type by ID: ", sql, TRUE);
+
+    }
+    else
+    {
+        printf("\nWrong parameter\n");
+        return;
+    }
+    executeSQL(db, sql, NULL, NULL, TRUE);
+}
+
+void SelectDeleteFromDB(sqlite3* db, short to_delete)
+{
+    char buff[20], sql[1000];
+    if (to_delete)
+        strcpy(sql, "DELETE FROM ");
+    else
+        strcpy(sql, "SELECT * FROM ");
+
+    int des;
+    printf("\nChoose the table:\n"
+        "1. Helicopters;\n"
+        "2. Flights;\n"
+        "3. Pilots;\n"
+         "4. Types;\n");
+
+    fgets(buff, 20, stdin);
+    des = atoi(buff);
+
+    if (des == 1)
+    {
+        strcat(sql, "Helicopters");
+    }
+    else if (des == 2)
+    {
+        strcat(sql, "Flights");
+    }
+    else if (des == 3)
+    {
+        strcat(sql, "Pilots");
+    }
+    else if (des == 4)
+    {
+        strcat(sql, "Types");
+    }
+    else
+    {
+        printf("\nWrong parameter");
+        return;
+    }
+
+    printf("BY:\n"
+            "1. ID;\n"
+            "2. All\n");
+
+    fgets(buff, 20, stdin);
+    des = atoi(buff);
+
+    if (des == 1)
+    {
+        printf("\nEnter ID: ");
+        fgets(buff, 20, stdin);
+        strcat(sql, " where ID=");
+        strcat(sql, buff);
+        strcat(sql, ";");
+    }
+    else if (des == 2)
+    {
+        strcat(sql, ";");
+    }
+    else
+    {
+        printf("\nWrong parameter");
+        return;
+    }
+    if (to_delete)
+    {
+        executeSQL(db, sql, NULL, NULL, TRUE);
+    }
+    else
+    {
+        executeSQL(db, sql, printTable, NULL, TRUE);
+    }
+}
+void AdminAction(sqlite3* db)
+{
+    char buff[20];
+    int des;
+    printf("\nChoose the action:\n"
+        "1. INSERT;\n"
+        "2. SELECT;\n"
+        "3. DELETE;\n"
+        "4. UPDATE;\n");
+
+    fgets(buff, 20, stdin);
+    des = atoi(buff);
+
+    switch(des)
+    {
+        case 1:
+            InsertIntoDB(db);
+            break;
+        case 2:
+            SelectDeleteFromDB(db, FALSE);
+        case 3:
+            SelectDeleteFromDB(db, TRUE);
+            break;
+        case 4:
+            break;
+        default:
+            printf("\nWrong parameter");
+            break;
+    }
+}
+
+
