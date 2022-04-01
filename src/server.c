@@ -198,7 +198,8 @@ void getInfo(sqlite3* db)
             "2. HELICOPTERS;\n"
             "3. CREWS;\n"
             "4. FLIGHTS;\n"
-            "5. TOTAL SPECIAL FLIGHTS STATISTICS;\n");
+            "5. TOTAL SPECIAL FLIGHTS STATISTICS;\n"
+            "6. TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME FOR EACH HELICOPTER\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -226,6 +227,13 @@ void getInfo(sqlite3* db)
             strcpy(sql, "Select Count(Flights.id) as total_flights_amount, Sum(Flights.mass_cargo) as total_mass_cargo, Sum(Flights.price) as total_price from Flights "
                 " inner join Types on Flights.type_id = Types.id where Types.id=Special");
             break;
+        case 6:
+            strcpy(sql, "SELECT Helicopters.id, Helicopters.brand, Helicopters.flights_resource, "
+                        "sum(Flights.duration) as total_duration FROM Helicopters INNER JOIN Flights on "
+                        "Helicopters.id = Flights.helicopter_id WHERE Helicopters.last_overhaul_date < Flights.date "
+                        "GROUP BY Helicopters.id;");
+            break;
+
         default:
             printf("\nWrong parameter");
             return;
@@ -235,7 +243,8 @@ void getInfo(sqlite3* db)
     {
         printf("Choose info type:\n"
             "1. MY DATA;\n"
-            "2. MY HELICOPTER;\n");
+            "2. MY HELICOPTER;\n"
+            "3. MY HELICOPTER TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -250,6 +259,14 @@ void getInfo(sqlite3* db)
             break;
         case 2:
             strcpy(sql, "Select Helicopters.* from Helicopters inner join Pilots on Helicopters.id=Pilots.helicopter_id where Pilots.id=");
+            strcat(sql, current_ID);
+            strcat(sql, ";");
+            break;
+        case 3:
+            strcpy(sql, "SELECT Helicopters.id, Helicopters.brand, Helicopters.flights_resource, "
+                        "sum(Flights.duration) as total_duration FROM Flights LEFT JOIN Helicopters LEFT JOIN Pilots "
+                        "WHERE Helicopters.id = Flights.helicopter_id and Flights.helicopter_id = Pilots.helicopter_id "
+                        "and Helicopters.last_overhaul_date < Flights.date and Pilots.id = ");
             strcat(sql, current_ID);
             strcat(sql, ";");
             break;
