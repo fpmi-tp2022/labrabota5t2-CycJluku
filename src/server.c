@@ -32,7 +32,7 @@ short executeSQL(sqlite3* db, const char* sql, int(*callback)(void*, int, char**
 void AskParameter(char* msg, char* sql, short isInt, short isEnd)
 {
     char buff[100];
-    if (sql)
+    if (msg)
     {
         printf("%s", msg);
     }
@@ -70,7 +70,8 @@ void AskParameter(char* msg, char* sql, short isInt, short isEnd)
 }
 int findLogin(void* data, int argc, char** argv, char** azColName)
 {
-    for (int i = 0; i < argc; i++) {
+    for (int i = 0; i < argc; i++) 
+    {
         access = TRUE;
         strcpy(current_ID, argv[i]);
         break;
@@ -121,7 +122,7 @@ void Registraion(sqlite3* db)
     strcpy(position_choice, current_buff);
     AskParameter("\nEnter experience: ", sql, TRUE, FALSE);
 
-    AskParameter("\nEnter your address: ", sql, TRUE, FALSE);
+    AskParameter("\nEnter your address: ", sql, FALSE, FALSE);
 
     AskParameter("\nEnter your birth year: ", sql, TRUE, FALSE);
 
@@ -161,19 +162,19 @@ void Login(sqlite3* db)
     {
         password[size_p - 1] = '\0';
     }
-    char sql[500] = "Select ID from Pilots where login=";
+    char sql[500] = "Select ID from Pilots where login='";
 
     strcat(sql, login);
-    strcat(sql, " and password=");
+    strcat(sql, "' and password='");
     strcat(sql, password);
-    strcat(sql, ";");
+    strcat(sql, "';");
     if (executeSQL(db, sql, findLogin, NULL, TRUE))
     {
-        char sql_position[500] = "Select Positions.name from Positions inner join Pilots on Positions.ID=Pilots.position_id where Pilots.login=";
+        char sql_position[500] = "Select Positions.name from Positions inner join Pilots on Positions.ID=Pilots.position_id where Pilots.login='";
         strcat(sql_position, login);
-        strcat(sql_position, " and Pilots.password=");
+        strcat(sql_position, "' and Pilots.password='");
         strcat(sql_position, password);
-        strcat(sql_position, ";");
+        strcat(sql_position, "';");
         executeSQL(db, sql_position, CheckIsCommander, NULL, FALSE);
     }
 }

@@ -9,7 +9,7 @@ int main()
     char* zErrMsg = 0;
     int result;
 
-    result = sqlite3_open("doc/air_cub.db", &db);
+    result = sqlite3_open("doc/air_cab.db", &db);
 
     if (result)
     {
