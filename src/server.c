@@ -199,7 +199,8 @@ void getInfo(sqlite3* db)
             "3. CREWS;\n"
             "4. FLIGHTS;\n"
             "5. TOTAL SPECIAL FLIGHTS STATISTICS;\n"
-            "6. TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME FOR EACH HELICOPTER\n");
+            "6. TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME FOR EACH HELICOPTER\n"
+            "7. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -233,9 +234,34 @@ void getInfo(sqlite3* db)
                         "Helicopters.id = Flights.helicopter_id WHERE Helicopters.last_overhaul_date < Flights.date "
                         "GROUP BY Helicopters.id;");
             break;
+        case 7:
+        {
+            printf("Enter date(yyyy-mm-dd) of period start: ");
+            scanf("%s", buff);
+            strcpy(sql, "SELECT * FROM Flights WHERE Flights.date BETWEEN '");
+            strcat(sql, buff);
+            strcat(sql, "' AND '");
+            printf("Enter date(yyyy-mm-dd) of period finish: ");
+            char buff1[20];
+            scanf("%s", buff1);
+            strcat(sql, buff1);
+            strcat(sql, "' ORDER BY helicopter_id;");
+            printf("List of flights:\n");
+            executeSQL(db, sql, printTable, NULL, FALSE);
 
+
+            strcpy(sql, "SELECT helicopter_id, Helicopters.brand, sum(Flights.mass_cargo) as total_cargo_weight,"
+                        " sum(Flights.people_amount) as total_people FROM Flights LEFT JOIN Helicopters on "
+                        "Helicopters.id = Flights.helicopter_id WHERE Flights.date BETWEEN '");
+            strcat(sql, buff);
+            strcat(sql, "' AND '");
+            strcat(sql, buff1);
+            strcat(sql, "' GROUP BY helicopter_id;");
+            printf("Total cargo weight and people amount:\n");
+        }
+            break;
         default:
-            printf("\nWrong parameter");
+            printf("Wrong parameter\n");
             return;
         }
     }
@@ -244,7 +270,8 @@ void getInfo(sqlite3* db)
         printf("Choose info type:\n"
             "1. MY DATA;\n"
             "2. MY HELICOPTER;\n"
-            "3. MY HELICOPTER TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME\n");
+            "3. MY HELICOPTER TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME\n"
+            "4. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -265,10 +292,42 @@ void getInfo(sqlite3* db)
         case 3:
             strcpy(sql, "SELECT Helicopters.id, Helicopters.brand, Helicopters.flights_resource, "
                         "sum(Flights.duration) as total_duration FROM Flights LEFT JOIN Helicopters LEFT JOIN Pilots "
-                        "WHERE Helicopters.id = Flights.helicopter_id and Flights.helicopter_id = Pilots.helicopter_id "
-                        "and Helicopters.last_overhaul_date < Flights.date and Pilots.id = ");
+                        "on Helicopters.id = Flights.helicopter_id and Flights.helicopter_id = Pilots.helicopter_id "
+                        "WHERE Helicopters.last_overhaul_date < Flights.date and Pilots.id = ");
             strcat(sql, current_ID);
             strcat(sql, ";");
+            break;
+        case 4:
+        {
+            printf("Enter date(yyyy-mm-dd) of period start: ");
+            scanf("%s", buff);
+            strcpy(sql, "SELECT Flights.* FROM Flights LEFT JOIN Pilots on Pilots.helicopter_id = "
+                        "Flights.helicopter_id WHERE Flights.date BETWEEN '");
+            strcat(sql, buff);
+            strcat(sql, "' AND '");
+            printf("Enter date(yyyy-mm-dd) of period finish: ");
+            char buff1[20];
+            scanf("%s", buff1);
+            strcat(sql, buff1);
+            strcat(sql, "' and Pilots.id = ");
+            strcat(sql, current_ID);
+            strcat(sql, ";");
+            printf("List of flights:\n");
+            executeSQL(db, sql, printTable, NULL, FALSE);
+
+
+            strcpy(sql, "SELECT Flights.helicopter_id, Helicopters.brand, sum(Flights.mass_cargo) as "
+                        "total_cargo_weight, sum(Flights.people_amount) as total_people FROM Flights LEFT JOIN "
+                        "Helicopters LEFT JOIN Pilots on Pilots.helicopter_id = Flights.helicopter_id and Helicopters.id"
+                        " = Flights.helicopter_id WHERE Flights.date BETWEEN '");
+            strcat(sql, buff);
+            strcat(sql, "' AND '");
+            strcat(sql, buff1);
+            strcat(sql, "' and Pilots.id = ");
+            strcat(sql, current_ID);
+            strcat(sql, ";");
+            printf("Total cargo weight and people amount:\n");
+        }
             break;
         default:
             printf("\nWrong parameter");
