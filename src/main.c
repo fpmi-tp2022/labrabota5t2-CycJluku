@@ -1,5 +1,6 @@
 #include "sqlite3.h" 
 #include "../include/server.h"
+#include "../include/variables.h"
 #include "stdio.h"
 #include "stdlib.h"
 
@@ -22,10 +23,12 @@ int main()
     }
 
     char buff[20];
-    int des;
+    int des = 0;
     start:
     while (!access)
     {
+    if (des == 2)
+    	printf("\nTry again\n");
         printf("\nChoose the action:\n"
             "1. REGISTRATION;\n"
             "2. LOGIN;\n"

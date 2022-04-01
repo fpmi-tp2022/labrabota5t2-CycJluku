@@ -1,5 +1,11 @@
 #include "../include/server.h"
+#include "../include/variables.h"
 
+#define MAIN_FILE
+short access; 
+short isCommander;
+char current_buff[100];
+char current_ID[10];
 
 int printTable(void* data, int argc, char** argv, char** azColName)
 {
@@ -23,7 +29,6 @@ short executeSQL(sqlite3* db, const char* sql, int(*callback)(void*, int, char**
     }
     else if(success_inform){
         fprintf(stdout, "\nOperation done successfully\n");
-        return TRUE;
     }
     return TRUE;
 }
@@ -73,9 +78,11 @@ int findLogin(void* data, int argc, char** argv, char** azColName)
     for (int i = 0; i < argc; i++) 
     {
         access = TRUE;
+        printf("\nSuccessfully\n");
         strcpy(current_ID, argv[i]);
-        break;
+        return 0;
     }
+    printf("\nAccess denied\n");
     return 0;
 }
 
@@ -168,7 +175,7 @@ void Login(sqlite3* db)
     strcat(sql, "' and password='");
     strcat(sql, password);
     strcat(sql, "';");
-    if (executeSQL(db, sql, findLogin, NULL, TRUE))
+    if (executeSQL(db, sql, findLogin, NULL, FALSE))
     {
         char sql_position[500] = "Select Positions.name from Positions inner join Pilots on Positions.ID=Pilots.position_id where Pilots.login='";
         strcat(sql_position, login);
