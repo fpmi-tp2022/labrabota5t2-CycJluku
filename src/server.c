@@ -347,7 +347,10 @@ void InsertIntoDB(sqlite3* db)
     int des;
     printf("\nChoose the table:\n"
         "1. Helicopters;\n"
-        "2. Flights;\n");
+        "2. Flights;\n"
+        "3. Types;\n"
+        "4. Positions\n");
+        
 
     fgets(buff, 20, stdin);
     des = atoi(buff);
@@ -382,6 +385,18 @@ void InsertIntoDB(sqlite3* db)
 
         AskParameterByID(db, "Select * from Types;", "\nChoose type by ID: ", sql, TRUE);
 
+    }
+    else if (des == 3)
+    {
+        strcat(sql, " Types values(null, ");
+
+        AskParameter("\nEnter name: ", sql, FALSE, TRUE);
+    }
+    else if (des == 4)
+    {
+        strcat(sql, " Positions values(null, ");
+
+        AskParameter("\nEnter name: ", sql, FALSE, TRUE);
     }
     else
     {
