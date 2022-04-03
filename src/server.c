@@ -555,7 +555,7 @@ void ChooseFunction(sqlite3* db){
 
     printf("\nChoose the function:\n"
            "1. TOTAL CREWS SALARY IN SELECTED PERIOD\n"
-           "2. TOTAL SALARY FOR SELECTED PILOT IN SELECTED PERIOD\n");
+           "2. TOTAL SALARY FOR SELECTED PILOT IN SELECTED PERIOD FOR SELECTED FLIGHTS\n");
 
     fgets(buffer, 20, stdin);
     choice = atoi(buffer);
@@ -601,7 +601,12 @@ void ChooseFunction(sqlite3* db){
             strcat(sql, buffer1);
             strcat(sql, "' AND Pilots.id = ");
             strcat(sql, pilot_id);
-            strcat(sql,";");
+            strcat(sql, " AND Flights.id IN (");
+            printf("Enter flight(s) id(s) separated by commas:\n");
+            fgets(buffer, 100, stdin);
+            buffer[strlen(buffer) - 1] = '\0';
+            strcat(sql, buffer);
+            strcat(sql, ");");
         }
             break;
         default:
