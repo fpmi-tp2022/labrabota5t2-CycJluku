@@ -548,6 +548,49 @@ void SelectDeleteFromDB(sqlite3 *db, short to_delete) {
     }
 }
 
+void ChooseFunction(sqlite3* db){
+    char sql[1000];
+    char buffer[100], buffer1[100];
+    int choice;
+
+    printf("\nChoose the function:\n"
+           "1. TOTAL CREWS SALARY IN SELECTED PERIOD\n");
+
+    fgets(buffer, 20, stdin);
+    choice = atoi(buffer);
+
+    switch (choice) {
+        case 1:
+            strcpy(sql, "INSERT INTO Sums(id, period_start, period_end, total_salary) VALUES (NULL, '");
+            printf("Enter the period start date(yyyy-mm-dd):\n");
+            fgets(buffer, 100, stdin);
+            buffer[strlen(buffer) - 1] = '\0';
+            printf("Enter the period end date(yyyy-mm-dd):\n");
+            fgets(buffer1, 100, stdin);
+            buffer1[strlen(buffer1) - 1] = '\0';
+            strcat(sql, buffer);
+            strcat(sql, "', '");
+            strcat(sql, buffer1);
+            strcat(sql,"', (SELECT sum(Flights.price * Types.salary_ratio) FROM Flights INNER JOIN Types ON "
+                       "Flights.type_id = Types.id WHERE Flights.date BETWEEN '");
+            strcat(sql, buffer);
+            strcat(sql, "' AND '");
+            strcat(sql, buffer1);
+            strcat(sql, "'));");
+            printf("%s", sql);
+            executeSQL(db, sql, NULL, NULL, TRUE);
+            strcpy(sql, "SELECT * FROM Sums;");
+            break;
+        case 2:
+            break;
+        default:
+            printf("Wrong parameter\n");
+            return;
+    }
+
+    executeSQL(db, sql, printTable, NULL, TRUE);
+}
+
 void AdminAction(sqlite3 *db) {
     char buff[20];
     int des;
@@ -555,7 +598,8 @@ void AdminAction(sqlite3 *db) {
            "1. INSERT;\n"
            "2. SELECT;\n"
            "3. DELETE;\n"
-           "4. UPDATE;\n");
+           "4. UPDATE;\n"
+           "5. FUNCTIONS\n");
 
     fgets(buff, 20, stdin);
     des = atoi(buff);
@@ -570,6 +614,9 @@ void AdminAction(sqlite3 *db) {
             SelectDeleteFromDB(db, TRUE);
             break;
         case 4:
+            break;
+        case 5:
+            ChooseFunction(db);
             break;
         default:
             printf("\nWrong parameter");
