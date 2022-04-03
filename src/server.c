@@ -180,7 +180,8 @@ void getInfo(sqlite3 *db) {
                "5. TOTAL SPECIAL FLIGHTS STATISTICS;\n"
                "6. TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME FOR EACH HELICOPTER\n"
                "7. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD\n"
-               "8. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' COMMON FLIGHTS\n");
+               "8. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' COMMON FLIGHTS\n"
+               "9. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' SPECIAL FLIGHTS\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -245,8 +246,14 @@ void getInfo(sqlite3 *db) {
             case 8:
                 strcpy(sql,
                        "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as total_cargo_weight, "
-                       "sum(Flights.people_amount) as total_people_amount FROM Flights WHERE Flights.type_id = 2 "
-                       "GROUP BY Flights.helicopter_id;");
+                       "sum(Flights.people_amount) as total_people_amount, sum(Flights.price) as total_money FROM Flights"
+                       " WHERE Flights.type_id = 2 GROUP BY Flights.helicopter_id;");
+                break;
+            case 9:
+                strcpy(sql,
+                       "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as total_cargo_weight, "
+                       "sum(Flights.people_amount) as total_people_amount, sum(Flights.price) as total_money FROM Flights"
+                       " WHERE Flights.type_id = 1 GROUP BY Flights.helicopter_id;");
                 break;
             default:
                 printf("Wrong parameter\n");
@@ -258,7 +265,8 @@ void getInfo(sqlite3 *db) {
                "2. MY HELICOPTER;\n"
                "3. MY HELICOPTER TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME\n"
                "4. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD\n"
-               "5. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR COMMON FLIGHTS\n");
+               "5. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR COMMON FLIGHTS\n"
+               "6. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR SPECIAL FLIGHTS\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -318,9 +326,17 @@ void getInfo(sqlite3 *db) {
                 break;
             case 5:
                 strcpy(sql, "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as "
-                            "total_cargo_weight, sum(Flights.people_amount) as total_people_amount FROM Flights LEFT "
-                            "JOIN Pilots ON Flights.helicopter_id = Pilots.helicopter_id WHERE Flights.type_id = 2 "
-                            "AND Pilots.id = ");
+                            "total_cargo_weight, sum(Flights.people_amount) as total_people_amount, sum(Flights.price) "
+                            "as total_money FROM Flights LEFT JOIN Pilots ON Flights.helicopter_id = Pilots.helicopter_id"
+                            " WHERE Flights.type_id = 2 AND Pilots.id = ");
+                strcat(sql, current_ID);
+                strcat(sql, ";");
+                break;
+            case 6:
+                strcpy(sql, "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as "
+                            "total_cargo_weight, sum(Flights.people_amount) as total_people_amount, sum(Flights.price) "
+                            "as total_money FROM Flights LEFT JOIN Pilots ON Flights.helicopter_id = Pilots.helicopter_id"
+                            " WHERE Flights.type_id = 1 AND Pilots.id = ");
                 strcat(sql, current_ID);
                 strcat(sql, ";");
                 break;
