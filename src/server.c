@@ -6,6 +6,8 @@ short access;
 short isCommander;
 char current_buff[100];
 char current_ID[10];
+char entered_helicopter_id[10];
+int duration_check_passed = TRUE;
 
 int printTable(void *data, int argc, char **argv, char **azColName) {
     for (int i = 0; i < argc; i++) {
@@ -64,6 +66,7 @@ void AskParameter(char *msg, char *sql, short isInt, short isEnd) {
         else
             strcat(sql, ");");
     }
+    strcpy(entered_helicopter_id, buff);
 }
 
 int findLogin(void *data, int argc, char **argv, char **azColName) {
@@ -387,6 +390,38 @@ void getInfo(sqlite3 *db) {
 
 }
 
+int check_helicopter(void *data, int argc, char **argv, char **azColName) {
+    if (!argv[0]){
+        printf("Unable to insert flight with such duration to this helicopter");
+        duration_check_passed = FALSE;
+    }
+
+    return 0;
+}
+
+void check_helicopter_flight_time(sqlite3* db, char* helicopter_id, char* duration){
+    char sql[300];
+    strcpy(sql,"SELECT * FROM Helicopters WHERE Helicopters.id = ");
+    strcat(sql, helicopter_id);
+    strcat(sql, " AND Helicopters.flights_resource > ");
+    strcat(sql, duration);
+    strcat(sql, ";");
+    executeSQL(db, sql, check_helicopter, NULL, TRUE);
+}
+
+int AskFlightDuration(const char* msg, char* sql, sqlite3* db, char* helicopter_id){
+    printf("%s", msg);
+    char buffer[10];
+    scanf("%s", buffer);
+    check_helicopter_flight_time(db, helicopter_id, buffer);
+    if (duration_check_passed == FALSE){
+        return -1;
+    }
+    strcat(sql, buffer);
+    strcat(sql, ", ");
+    return 0;
+}
+
 void InsertIntoDB(sqlite3 *db) {
     char sql[100] = "INSERT INTO ";
 
@@ -417,7 +452,10 @@ void InsertIntoDB(sqlite3 *db) {
     } else if (des == 2) {
         strcat(sql, " Flights values(null, ");
 
-        AskParameterByID(db, "Select id, brand from Helicopters;", "\nChoose helicopter by ID: ", sql, FALSE);
+        AskParameterByID(db, "Select id, brand from Helicopters;", "\nChoose helicopter by ID: \n", sql, FALSE);
+        char helicopter_id[10];
+        strcpy(helicopter_id, entered_helicopter_id);
+        printf("%s", helicopter_id);
 
         AskParameter("\nEnter date(yyyy-mm-dd): ", sql, FALSE, FALSE);
 
@@ -426,6 +464,10 @@ void InsertIntoDB(sqlite3 *db) {
         AskParameter("\nEnter people amount: ", sql, TRUE, FALSE);
 
         AskParameter("\nEnter price: ", sql, TRUE, FALSE);
+
+        if (AskFlightDuration("\nEnter flight duration: ", sql, db, helicopter_id) == -1){
+            return;
+        }
 
         AskParameterByID(db, "Select * from Types;", "\nChoose type by ID: ", sql, TRUE);
 
