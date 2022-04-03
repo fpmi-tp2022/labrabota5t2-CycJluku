@@ -182,7 +182,8 @@ void getInfo(sqlite3 *db) {
                "7. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD\n"
                "8. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' COMMON FLIGHTS\n"
                "9. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' SPECIAL FLIGHTS\n"
-               "10. FOR HELICOPTER WITH MAX FLIGHTS AMOUNT GET LIST OF DONE FLIGHTS\n");
+               "10. FOR HELICOPTER WITH MAX FLIGHTS AMOUNT GET LIST OF DONE FLIGHTS\n"
+               "11. GET ALL DONE FLIGHTS INFO BY HELICOPTER ID OR PILOT ID\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -264,7 +265,37 @@ void getInfo(sqlite3 *db) {
                             " DESC LIMIT 1) GROUP BY Pilots.id;");
                 break;
             case 11:
-
+                while(TRUE){
+                    printf("SELECT by:\n"
+                           "1. helicopter id\n"
+                           "2. pilot id\n");
+                    {
+                        char choice_buff[10];
+                        scanf("%s", choice_buff);
+                        int choice = atoi(choice_buff);
+                        switch(choice){
+                            case 1:
+                                printf("Enter the helicopter id\n");
+                                scanf("%s", buff);
+                                strcpy(sql, "SELECT * FROM Flights WHERE Flights.helicopter_id = ");
+                                strcat(sql, buff);
+                                strcat(sql, ";");
+                                break;
+                            case 2:
+                                printf("Enter the pilot id\n");
+                                scanf("%s", buff);
+                                strcpy(sql, "SELECT Flights.* FROM Flights LEFT JOIN Pilots ON Flights.helicopter_id = "
+                                            "Pilots.helicopter_id WHERE Pilots.id = ");
+                                strcat(sql, buff);
+                                strcat(sql, ";");
+                                break;
+                            default:
+                                printf("Wrong parameter\n");
+                                continue;
+                        }
+                        break;
+                    }
+                }
                 break;
             default:
                 printf("Wrong parameter\n");
@@ -275,7 +306,8 @@ void getInfo(sqlite3 *db) {
                "1. MY DATA;\n"
                "2. MY HELICOPTER;\n"
                "3. MY HELICOPTER TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME\n"
-               "4. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD\n");
+               "4. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD\n"
+               "5. GET MY DONE FLIGHTS\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -333,24 +365,14 @@ void getInfo(sqlite3 *db) {
                 printf("Total cargo weight and people amount:\n");
             }
                 break;
-//            case 5:
-//                strcpy(sql, "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as "
-//                            "total_cargo_weight, sum(Flights.people_amount) as total_people_amount, sum(Flights.price) "
-//                            "as total_money FROM Flights LEFT JOIN Pilots ON Flights.helicopter_id = Pilots.helicopter_id"
-//                            " WHERE Flights.type_id = 2 AND Pilots.id = ");
-//                strcat(sql, current_ID);
-//                strcat(sql, ";");
-//                break;
-//            case 6:
-//                strcpy(sql, "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as "
-//                            "total_cargo_weight, sum(Flights.people_amount) as total_people_amount, sum(Flights.price) "
-//                            "as total_money FROM Flights LEFT JOIN Pilots ON Flights.helicopter_id = Pilots.helicopter_id"
-//                            " WHERE Flights.type_id = 1 AND Pilots.id = ");
-//                strcat(sql, current_ID);
-//                strcat(sql, ";");
-//                break;
+            case 5:
+                strcpy(sql, "SELECT Flights.* FROM Flights LEFT JOIN Pilots ON Flights.helicopter_id = "
+                            "Pilots.helicopter_id WHERE Pilots.id = ");
+                strcat(sql, current_ID);
+                strcat(sql, ";");
+                break;
             default:
-                printf("\nWrong parameter");
+                printf("Wrong parameter\n");
                 return;
         }
     }
