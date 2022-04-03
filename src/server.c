@@ -7,7 +7,7 @@ short isCommander;
 char current_buff[100];
 char current_ID[10];
 char entered_helicopter_id[10];
-int duration_check_passed = TRUE;
+int duration_check_passed;
 
 int printTable(void *data, int argc, char **argv, char **azColName) {
     for (int i = 0; i < argc; i++) {
@@ -391,11 +391,11 @@ void getInfo(sqlite3 *db) {
 }
 
 int check_helicopter(void *data, int argc, char **argv, char **azColName) {
+    printf("%s", argv[0]);
     if (!argv[0]){
-        printf("Unable to insert flight with such duration to this helicopter");
         duration_check_passed = FALSE;
     }
-
+    duration_check_passed = TRUE;
     return 0;
 }
 
@@ -406,7 +406,7 @@ void check_helicopter_flight_time(sqlite3* db, char* helicopter_id, char* durati
     strcat(sql, " AND Helicopters.flights_resource > ");
     strcat(sql, duration);
     strcat(sql, ";");
-    executeSQL(db, sql, check_helicopter, NULL, TRUE);
+    executeSQL(db, sql, check_helicopter, NULL, FALSE);
 }
 
 int AskFlightDuration(const char* msg, char* sql, sqlite3* db, char* helicopter_id){
@@ -466,6 +466,7 @@ void InsertIntoDB(sqlite3 *db) {
         AskParameter("\nEnter price: ", sql, TRUE, FALSE);
 
         if (AskFlightDuration("\nEnter flight duration: ", sql, db, helicopter_id) == -1){
+            printf("Unable to insert flight with such duration to this helicopter\n");
             return;
         }
 
