@@ -108,6 +108,7 @@ void AskParameterByID(sqlite3 *db, char *sql_print, char *msg, char *sql_aim, sh
 }
 
 void Registration(sqlite3 *db) {
+
     char sql[1000] = "INSERT INTO Pilots values(null, ";
 
     AskParameter("\nEnter Surname: ", sql, FALSE, FALSE);
@@ -275,6 +276,7 @@ void getInfo(sqlite3 *db) {
                            "2. pilot id\n");
                     {
                         char choice_buff[10];
+
                         fgets(choice_buff, 10, stdin);
                         int choice = atoi(choice_buff);
                         switch(choice){
@@ -287,7 +289,9 @@ void getInfo(sqlite3 *db) {
                                 break;
                             case 2:
                                 printf("Enter the pilot id\n");
+
                                 fgets(buff, 20, stdin);
+
                                 strcpy(sql, "SELECT Flights.* FROM Flights LEFT JOIN Pilots ON Flights.helicopter_id = "
                                             "Pilots.helicopter_id WHERE Pilots.id = ");
                                 strcat(sql, buff);
@@ -420,6 +424,7 @@ int AskFlightDuration(const char* msg, char* sql, sqlite3* db, char* helicopter_
     strcat(sql, ", ");
     return 0;
 }
+
 
 void InsertIntoDB(sqlite3 *db) {
     char sql[100] = "INSERT INTO ";
