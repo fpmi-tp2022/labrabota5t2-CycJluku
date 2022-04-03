@@ -554,7 +554,8 @@ void ChooseFunction(sqlite3* db){
     int choice;
 
     printf("\nChoose the function:\n"
-           "1. TOTAL CREWS SALARY IN SELECTED PERIOD\n");
+           "1. TOTAL CREWS SALARY IN SELECTED PERIOD\n"
+           "2. TOTAL SALARY FOR SELECTED PILOT IN SELECTED PERIOD\n");
 
     fgets(buffer, 20, stdin);
     choice = atoi(buffer);
@@ -581,7 +582,27 @@ void ChooseFunction(sqlite3* db){
             executeSQL(db, sql, NULL, NULL, TRUE);
             strcpy(sql, "SELECT * FROM Sums;");
             break;
-        case 2:
+        case 2:{
+            printf("Enter the period start date(yyyy-mm-dd):\n");
+            fgets(buffer, 100, stdin);
+            buffer[strlen(buffer) - 1] = '\0';
+            printf("Enter the period end date(yyyy-mm-dd):\n");
+            fgets(buffer1, 100, stdin);
+            buffer1[strlen(buffer1) - 1] = '\0';
+            printf("Enter pilot id:\n");
+            char pilot_id[10];
+            fgets(pilot_id, 10, stdin);
+            pilot_id[strlen(pilot_id) - 1] = '\0';
+            strcpy(sql, "SELECT Pilots.id, Pilots.surname, Pilots.helicopter_id, sum(Flights.price * "
+                        "Types.salary_ratio) as total_salary FROM Flights INNER JOIN Types on Types.id = Flights.type_id INNER JOIN "
+                        "Pilots on Pilots.helicopter_id = Flights.helicopter_id WHERE Flights.date BETWEEN '");
+            strcat(sql, buffer);
+            strcat(sql, "' AND '");
+            strcat(sql, buffer1);
+            strcat(sql, "' AND Pilots.id = ");
+            strcat(sql, pilot_id);
+            strcat(sql,";");
+        }
             break;
         default:
             printf("Wrong parameter\n");
