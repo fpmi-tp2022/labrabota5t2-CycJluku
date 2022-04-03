@@ -183,7 +183,8 @@ void getInfo(sqlite3 *db) {
                "8. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' COMMON FLIGHTS\n"
                "9. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' SPECIAL FLIGHTS\n"
                "10. FOR HELICOPTER WITH MAX FLIGHTS AMOUNT GET LIST OF DONE FLIGHTS\n"
-               "11. GET ALL DONE FLIGHTS INFO BY HELICOPTER ID OR PILOT ID\n");
+               "11. GET ALL DONE FLIGHTS INFO BY HELICOPTER ID OR PILOT ID\n"
+               "12. GET LIST OF DONE FLIGHTS FOR CREW THAT EARNED MAX AMOUNT OF MONEY\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -293,9 +294,14 @@ void getInfo(sqlite3 *db) {
                                 printf("Wrong parameter\n");
                                 continue;
                         }
-                        break;
                     }
+                    break;
                 }
+                break;
+            case 12:
+                strcpy(sql, "SELECT * FROM Flights WHERE Flights.helicopter_id IN (SELECT helicopter_id FROM "
+                            "Flights LEFT JOIN Types on Flights.type_id = Types.id GROUP BY helicopter_id ORDER BY "
+                            "Flights.price * Types.salary_ratio DESC LIMIT 1);");
                 break;
             default:
                 printf("Wrong parameter\n");
