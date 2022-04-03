@@ -390,6 +390,7 @@ void getInfo(sqlite3 *db) {
 
 }
 
+
 int check_helicopter(void *data, int argc, char **argv, char **azColName) {
     printf("%s", argv[0]);
     if (!argv[0]){
