@@ -10,7 +10,7 @@
 #include "sqlite3.h" 
 #include "string.h"
 	
-void Registraion(sqlite3* db);
+void Registration(sqlite3* db);
 void Login(sqlite3* db);
 void getInfo(sqlite3* db);
 void AdminAction(sqlite3* db);

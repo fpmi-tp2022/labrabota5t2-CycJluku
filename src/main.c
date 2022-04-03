@@ -40,7 +40,7 @@ int main()
         switch (des)
         {
         case 1:
-            Registraion(db);
+            Registration(db);
             break;
         case 2:
             Login(db);

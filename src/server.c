@@ -107,7 +107,8 @@ void AskParameterByID(sqlite3 *db, char *sql_print, char *msg, char *sql_aim, sh
     AskParameter(NULL, sql_aim, TRUE, isEnd);
 }
 
-void Registraion(sqlite3 *db) {
+void Registration(sqlite3 *db) {
+
     char sql[1000] = "INSERT INTO Pilots values(null, ";
 
     AskParameter("\nEnter Surname: ", sql, FALSE, FALSE);
@@ -226,13 +227,13 @@ void getInfo(sqlite3 *db) {
                 break;
             case 7: {
                 printf("Enter date(yyyy-mm-dd) of period start: ");
-                scanf("%s", buff);
+                fgets(buff, 20, stdin);
                 strcpy(sql, "SELECT * FROM Flights WHERE Flights.date BETWEEN '");
                 strcat(sql, buff);
                 strcat(sql, "' AND '");
                 printf("Enter date(yyyy-mm-dd) of period finish: ");
                 char buff1[20];
-                scanf("%s", buff1);
+                fgets(buff1, 20, stdin);
                 strcat(sql, buff1);
                 strcat(sql, "' ORDER BY helicopter_id;");
                 printf("List of flights:\n");
@@ -275,19 +276,22 @@ void getInfo(sqlite3 *db) {
                            "2. pilot id\n");
                     {
                         char choice_buff[10];
-                        scanf("%s", choice_buff);
+
+                        fgets(choice_buff, 10, stdin);
                         int choice = atoi(choice_buff);
                         switch(choice){
                             case 1:
                                 printf("Enter the helicopter id\n");
-                                scanf("%s", buff);
+                                fgets(buff, 20, stdin);
                                 strcpy(sql, "SELECT * FROM Flights WHERE Flights.helicopter_id = ");
                                 strcat(sql, buff);
                                 strcat(sql, ";");
                                 break;
                             case 2:
                                 printf("Enter the pilot id\n");
-                                scanf("%s", buff);
+
+                                fgets(buff, 20, stdin);
+
                                 strcpy(sql, "SELECT Flights.* FROM Flights LEFT JOIN Pilots ON Flights.helicopter_id = "
                                             "Pilots.helicopter_id WHERE Pilots.id = ");
                                 strcat(sql, buff);
@@ -345,14 +349,14 @@ void getInfo(sqlite3 *db) {
                 break;
             case 4: {
                 printf("Enter date(yyyy-mm-dd) of period start: ");
-                scanf("%s", buff);
+                fgets(buff, 20, stdin);
                 strcpy(sql, "SELECT Flights.* FROM Flights LEFT JOIN Pilots on Pilots.helicopter_id = "
                             "Flights.helicopter_id WHERE Flights.date BETWEEN '");
                 strcat(sql, buff);
                 strcat(sql, "' AND '");
                 printf("Enter date(yyyy-mm-dd) of period finish: ");
                 char buff1[20];
-                scanf("%s", buff1);
+                fgets(buff1, 20, stdin);
                 strcat(sql, buff1);
                 strcat(sql, "' and Pilots.id = ");
                 strcat(sql, current_ID);
@@ -390,9 +394,7 @@ void getInfo(sqlite3 *db) {
 
 }
 
-
 int check_helicopter(void *data, int argc, char **argv, char **azColName) {
-    printf("%s", argv[0]);
     if (!argv[0]){
         duration_check_passed = FALSE;
     }
@@ -413,7 +415,7 @@ void check_helicopter_flight_time(sqlite3* db, char* helicopter_id, char* durati
 int AskFlightDuration(const char* msg, char* sql, sqlite3* db, char* helicopter_id){
     printf("%s", msg);
     char buffer[10];
-    scanf("%s", buffer);
+    fgets(buffer, 10, stdin);
     check_helicopter_flight_time(db, helicopter_id, buffer);
     if (duration_check_passed == FALSE){
         return -1;
@@ -422,6 +424,7 @@ int AskFlightDuration(const char* msg, char* sql, sqlite3* db, char* helicopter_
     strcat(sql, ", ");
     return 0;
 }
+
 
 void InsertIntoDB(sqlite3 *db) {
     char sql[100] = "INSERT INTO ";
@@ -453,10 +456,9 @@ void InsertIntoDB(sqlite3 *db) {
     } else if (des == 2) {
         strcat(sql, " Flights values(null, ");
 
-        AskParameterByID(db, "Select id, brand from Helicopters;", "\nChoose helicopter by ID: \n", sql, FALSE);
+        AskParameterByID(db, "Select id, brand from Helicopters;", "Choose helicopter by ID:", sql, FALSE);
         char helicopter_id[10];
         strcpy(helicopter_id, entered_helicopter_id);
-        printf("%s", helicopter_id);
 
         AskParameter("\nEnter date(yyyy-mm-dd): ", sql, FALSE, FALSE);
 
@@ -471,7 +473,7 @@ void InsertIntoDB(sqlite3 *db) {
             return;
         }
 
-        AskParameterByID(db, "Select * from Types;", "\nChoose type by ID: ", sql, TRUE);
+        AskParameterByID(db, "Select * from Types;", "\nChoose type by ID:", sql, TRUE);
 
     } else if (des == 3) {
         strcat(sql, " Types values(null, ");
