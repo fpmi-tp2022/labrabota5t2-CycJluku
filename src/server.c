@@ -6,7 +6,6 @@ short access;
 short isCommander;
 char current_buff[100];
 char current_ID[10];
-char entered_helicopter_id[10];
 int duration_check_passed;
 
 int printTable(void *data, int argc, char **argv, char **azColName) {
@@ -66,7 +65,6 @@ void AskParameter(char *msg, char *sql, short isInt, short isEnd) {
         else
             strcat(sql, ");");
     }
-    strcpy(entered_helicopter_id, buff);
 }
 
 int findLogin(void *data, int argc, char **argv, char **azColName) {
@@ -416,6 +414,7 @@ int AskFlightDuration(const char* msg, char* sql, sqlite3* db, char* helicopter_
     printf("%s", msg);
     char buffer[10];
     fgets(buffer, 10, stdin);
+    strcpy(current_buff, buffer);
     check_helicopter_flight_time(db, helicopter_id, buffer);
     if (duration_check_passed == FALSE){
         return -1;
@@ -456,9 +455,9 @@ void InsertIntoDB(sqlite3 *db) {
     } else if (des == 2) {
         strcat(sql, " Flights values(null, ");
 
-        AskParameterByID(db, "Select id, brand from Helicopters;", "Choose helicopter by ID:", sql, FALSE);
+        AskParameterByID(db, "Select id, brand from Helicopters;", "Choose helicopter by ID:\n", sql, FALSE);
         char helicopter_id[10];
-        strcpy(helicopter_id, entered_helicopter_id);
+        strcpy(helicopter_id, current_buff);
 
         AskParameter("\nEnter date(yyyy-mm-dd): ", sql, FALSE, FALSE);
 
@@ -468,12 +467,20 @@ void InsertIntoDB(sqlite3 *db) {
 
         AskParameter("\nEnter price: ", sql, TRUE, FALSE);
 
-        if (AskFlightDuration("\nEnter flight duration: ", sql, db, helicopter_id) == -1){
+	char sql_update_query[500];
+
+        if (AskFlightDuration("\nEnter flight duration: ", sql, db, helicopter_id) == -1)
+        {
             printf("Unable to insert flight with such duration to this helicopter\n");
             return;
         }
-
-        AskParameterByID(db, "Select * from Types;", "\nChoose type by ID:", sql, TRUE);
+         
+        
+        sprintf(sql_update_query, "Update Helicopters set flights_resource=flights_resource-%s where id=%s;", current_buff, helicopter_id);
+        
+        AskParameterByID(db, "Select * from Types;", "\nChoose type by ID:\n", sql, TRUE);
+        
+        executeSQL(db, sql_update_query, NULL, NULL, FALSE);
 
     } else if (des == 3) {
         strcat(sql, " Types values(null, ");
@@ -489,7 +496,7 @@ void InsertIntoDB(sqlite3 *db) {
         printf("\nWrong parameter\n");
         return;
     }
-    executeSQL(db, sql, NULL, NULL, TRUE);
+    executeSQL(db, sql, NULL, NULL, TRUE); 
 }
 
 void SelectDeleteFromDB(sqlite3 *db, short to_delete) {
@@ -518,7 +525,7 @@ void SelectDeleteFromDB(sqlite3 *db, short to_delete) {
     } else if (des == 4) {
         strcat(sql, "Types");
     } else {
-        printf("\nWrong parameter");
+        printf("\nWrong parameter\n");
         return;
     }
 
@@ -624,12 +631,11 @@ void AdminAction(sqlite3 *db) {
            "1. INSERT;\n"
            "2. SELECT;\n"
            "3. DELETE;\n"
-           "4. UPDATE;\n"
-           "5. FUNCTIONS\n");
+           "4. UPDATE;\n");
 
     fgets(buff, 20, stdin);
     des = atoi(buff);
-
+	
     switch (des) {
         case 1:
             InsertIntoDB(db);
@@ -640,8 +646,6 @@ void AdminAction(sqlite3 *db) {
             SelectDeleteFromDB(db, TRUE);
             break;
         case 4:
-            break;
-        case 5:
             ChooseFunction(db);
             break;
         default:
