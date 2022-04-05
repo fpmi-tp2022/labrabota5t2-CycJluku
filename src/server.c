@@ -209,13 +209,13 @@ void getInfo(sqlite3 *db) {
                 break;
             case 4:
                 strcpy(sql,
-                       "Select Flights.id, Flights_helicopter_id, Flights.date, Flights.mass_cargo, Flights.duration, Flights.price, "
+                       "Select Flights.id, Flights.helicopter_id, Flights.date, Flights.mass_cargo, Flights.duration, Flights.price, "
                        "Types.name from Flights inner join Types where Flights.type_id=Types.id;");
                 break;
             case 5:
                 strcpy(sql,
                        "Select Count(Flights.id) as total_flights_amount, Sum(Flights.mass_cargo) as total_mass_cargo, Sum(Flights.price) as total_price from Flights "
-                       " inner join Types on Flights.type_id = Types.id where Types.id=Special");
+                       " inner join Types on Flights.type_id = Types.id where Types.name='Special'");
                 break;
             case 6:
                 strcpy(sql, "SELECT Helicopters.id, Helicopters.brand, Helicopters.flights_resource, "
