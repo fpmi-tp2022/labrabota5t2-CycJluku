@@ -1,1 +1,17 @@
-Repository of `CycJLuku` team.
+# Project Name:
+  Repository of `CycJLuku` team for LAB5
+# Description:
+  Приложение предоставялет возможность взаимодейтсвия с БД. Пользователи (члены экипажа) могут зарегистрироваться и залогиниться. После этого им предоставялется возможность получить выбранную ими информацию. У командира свой отдельный перечень команд. Админ может управлять БД, вставляя и удаляя записи из всех таблиц. 
+# Installation:
+  1. Скачивание: `git clone https://github.com/fpmi-tp2022/CycJluku.git`
+  2. Сборка: `make`
+  3. Запуск программы: `bin/program`
+# Usage:
+  При использовании пользователем вводится номер одного из предложенных пунктов. При невалидном вводе система уведомляет пользователя и предлагает ввести снова. При заапросе информации, она выводится пользовател. в консоль. Можно завершить программу, выбрав пункт `Exit`, предложенный меню. При желании удаления исполняемых и бинарных файлов, можно ввести команду `make clean`, находясь в корневой папке проекта. 
+# Contributing:
+## Team CyCJLuku - 13 group 2 course, BSU:
+### Emelyanenko Pavel: Team-lead, Senior-developer.
+### Venediktov Nikita: Database designer, Senior-developer.
+### Svyatoslav Ryzhkov: PM, QA BA, Senior-developer.
+
+© CyCJLuku-team LLC, 2022.
