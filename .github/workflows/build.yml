@@ -1,0 +1,17 @@
+name: workflow
+
+on:
+  push:
+   branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: mkdir -p obj bin
+      - run: make
