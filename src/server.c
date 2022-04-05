@@ -169,6 +169,71 @@ void Login(sqlite3 *db) {
     }
 }
 
+void get_crews_info(char* sql){
+    strcpy(sql,
+           "Select Pilots.id, Pilots.surname, Positions.name, Pilots.experience, Pilots.address, Pilots.birth_year, "
+           "Pilots.helicopter_id from Pilots inner join Positions on Pilots.position_id=Positions.id order by Pilots.helicopter_id;");
+}
+
+void get_commander_info(char* sql, char* id){
+    strcpy(sql,
+           "Select Pilots.id, Pilots.surname, Positions.name, Pilots.experience, Pilots.address, Pilots.birth_year, "
+           "Pilots.helicopter_id from Pilots inner join Positions on Pilots.position_id=Positions.ID where Pilots.ID=");
+    strcat(sql, id);
+    strcat(sql, ";");
+}
+
+void get_helicopters_info(char* sql){
+    strcpy(sql, "Select * from Helicopters;");
+}
+
+void get_flights_info(char* sql){
+    strcpy(sql,
+           "Select Flights.id, Flights_helicopter_id, Flights.date, Flights.mass_cargo, Flights.duration, Flights.price, "
+           "Types.name from Flights inner join Types where Flights.type_id=Types.id;");
+}
+
+void get_special_flights_info(char* sql){
+    strcpy(sql,
+           "Select Count(Flights.id) as total_flights_amount, Sum(Flights.mass_cargo) as total_mass_cargo, Sum(Flights.price) as total_price from Flights "
+           " inner join Types on Flights.type_id = Types.id where Types.id=Special");
+}
+
+void get_repair_and_resource_info(char* sql){
+    strcpy(sql, "SELECT Helicopters.id, Helicopters.brand, Helicopters.flights_resource, "
+                "sum(Flights.duration) as total_duration FROM Helicopters INNER JOIN Flights on "
+                "Helicopters.id = Flights.helicopter_id WHERE Helicopters.last_overhaul_date < Flights.date "
+                "GROUP BY Helicopters.id;");
+}
+
+void get_common_flights_cargo_and_people_info(char* sql){
+    strcpy(sql,
+           "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as total_cargo_weight, "
+           "sum(Flights.people_amount) as total_people_amount, sum(Flights.price) as total_money FROM Flights"
+           " WHERE Flights.type_id = 2 GROUP BY Flights.helicopter_id;");
+}
+
+void get_special_flights_cargo_and_people_info(char* sql){
+    strcpy(sql,
+           "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as total_cargo_weight, "
+           "sum(Flights.people_amount) as total_people_amount, sum(Flights.price) as total_money FROM Flights"
+           " WHERE Flights.type_id = 1 GROUP BY Flights.helicopter_id;");
+}
+
+void get_flights_of_max_flight_amount_helicopter(char* sql){
+    strcpy(sql, "SELECT Pilots.*, sum(Flights.price * Types.salary_ratio) as total_money_earned "
+                "FROM Flights LEFT JOIN Pilots on Pilots.helicopter_id = Flights.helicopter_id LEFT JOIN "
+                "Types on Flights.type_id = Types.id WHERE Flights.helicopter_id IN (SELECT "
+                "Flights.helicopter_id FROM Flights GROUP BY Flights.helicopter_id ORDER BY count(Flights.id)"
+                " DESC LIMIT 1) GROUP BY Pilots.id;");
+}
+
+void get_flights_of_max_money_crew(char* sql){
+    strcpy(sql, "SELECT * FROM Flights WHERE Flights.helicopter_id IN (SELECT helicopter_id FROM "
+                "Flights LEFT JOIN Types on Flights.type_id = Types.id GROUP BY helicopter_id ORDER BY "
+                "Flights.price * Types.salary_ratio DESC LIMIT 1);");
+}
+
 void getInfo(sqlite3 *db) {
     char buff[20];
     char sql[500];
@@ -193,35 +258,22 @@ void getInfo(sqlite3 *db) {
 
         switch (des) {
             case 1:
-                strcpy(sql,
-                       "Select Pilots.id, Pilots.surname, Positions.name, Pilots.experience, Pilots.address, Pilots.birth_year, "
-                       "Pilots.helicopter_id from Pilots inner join Positions on Pilots.position_id=Positions.ID where Pilots.ID=");
-                strcat(sql, current_ID);
-                strcat(sql, ";");
+                get_commander_info(sql, current_ID);
                 break;
             case 2:
-                strcpy(sql, "Select * from Helicopters;");
+                get_helicopters_info(sql);
                 break;
             case 3:
-                strcpy(sql,
-                       "Select Pilots.id, Pilots.surname, Positions.name, Pilots.experience, Pilots.address, Pilots.birth_year, "
-                       "Pilots.helicopter_id from Pilots inner join Positions on Pilots.position_id=Positions.id order by Pilots.helicopter_id;");
+                get_crews_info(sql);
                 break;
             case 4:
-                strcpy(sql,
-                       "Select Flights.id, Flights_helicopter_id, Flights.date, Flights.mass_cargo, Flights.duration, Flights.price, "
-                       "Types.name from Flights inner join Types where Flights.type_id=Types.id;");
+                get_flights_info(sql);
                 break;
             case 5:
-                strcpy(sql,
-                       "Select Count(Flights.id) as total_flights_amount, Sum(Flights.mass_cargo) as total_mass_cargo, Sum(Flights.price) as total_price from Flights "
-                       " inner join Types on Flights.type_id = Types.id where Types.id=Special");
+                get_special_flights_info(sql);
                 break;
             case 6:
-                strcpy(sql, "SELECT Helicopters.id, Helicopters.brand, Helicopters.flights_resource, "
-                            "sum(Flights.duration) as total_duration FROM Helicopters INNER JOIN Flights on "
-                            "Helicopters.id = Flights.helicopter_id WHERE Helicopters.last_overhaul_date < Flights.date "
-                            "GROUP BY Helicopters.id;");
+                get_repair_and_resource_info(sql);
                 break;
             case 7: {
                 printf("Enter date(yyyy-mm-dd) of period start: ");
@@ -249,23 +301,13 @@ void getInfo(sqlite3 *db) {
             }
                 break;
             case 8:
-                strcpy(sql,
-                       "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as total_cargo_weight, "
-                       "sum(Flights.people_amount) as total_people_amount, sum(Flights.price) as total_money FROM Flights"
-                       " WHERE Flights.type_id = 2 GROUP BY Flights.helicopter_id;");
+                get_common_flights_cargo_and_people_info(sql);
                 break;
             case 9:
-                strcpy(sql,
-                       "SELECT count(Flights.id) as flight_number, sum(Flights.mass_cargo) as total_cargo_weight, "
-                       "sum(Flights.people_amount) as total_people_amount, sum(Flights.price) as total_money FROM Flights"
-                       " WHERE Flights.type_id = 1 GROUP BY Flights.helicopter_id;");
+                get_special_flights_cargo_and_people_info(sql);
                 break;
             case 10:
-                strcpy(sql, "SELECT Pilots.*, sum(Flights.price * Types.salary_ratio) as total_money_earned "
-                            "FROM Flights LEFT JOIN Pilots on Pilots.helicopter_id = Flights.helicopter_id LEFT JOIN "
-                            "Types on Flights.type_id = Types.id WHERE Flights.helicopter_id IN (SELECT "
-                            "Flights.helicopter_id FROM Flights GROUP BY Flights.helicopter_id ORDER BY count(Flights.id)"
-                            " DESC LIMIT 1) GROUP BY Pilots.id;");
+                get_flights_of_max_flight_amount_helicopter(sql);
                 break;
             case 11:
                 while (TRUE) {
@@ -304,9 +346,7 @@ void getInfo(sqlite3 *db) {
                 }
                 break;
             case 12:
-                strcpy(sql, "SELECT * FROM Flights WHERE Flights.helicopter_id IN (SELECT helicopter_id FROM "
-                            "Flights LEFT JOIN Types on Flights.type_id = Types.id GROUP BY helicopter_id ORDER BY "
-                            "Flights.price * Types.salary_ratio DESC LIMIT 1);");
+                get_flights_of_max_money_crew(sql);
                 break;
             default:
                 printf("Wrong parameter\n");
