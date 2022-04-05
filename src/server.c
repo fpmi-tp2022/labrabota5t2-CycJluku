@@ -180,13 +180,13 @@ void getInfo(sqlite3 *db) {
                "3. CREWS;\n"
                "4. FLIGHTS;\n"
                "5. TOTAL SPECIAL FLIGHTS STATISTICS;\n"
-               "6. TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME FOR EACH HELICOPTER\n"
-               "7. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD\n"
-               "8. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' COMMON FLIGHTS\n"
-               "9. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' SPECIAL FLIGHTS\n"
-               "10. FOR HELICOPTER WITH MAX FLIGHTS AMOUNT GET LIST OF DONE FLIGHTS\n"
-               "11. GET ALL DONE FLIGHTS INFO BY HELICOPTER ID OR PILOT ID\n"
-               "12. GET LIST OF DONE FLIGHTS FOR CREW THAT EARNED MAX AMOUNT OF MONEY\n");
+               "6. TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME FOR EACH HELICOPTER;\n"
+               "7. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD;\n"
+               "8. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' COMMON FLIGHTS;\n"
+               "9. TOTAL CARGO WEIGHT, PEOPLE AMOUNT, TOTAL MONEY FOR HELICOPTERS' SPECIAL FLIGHTS;\n"
+               "10. FOR HELICOPTER WITH MAX FLIGHTS AMOUNT GET LIST OF DONE FLIGHTS;\n"
+               "11. GET ALL DONE FLIGHTS INFO BY HELICOPTER ID OR PILOT ID;\n"
+               "12. GET LIST OF DONE FLIGHTS FOR CREW THAT EARNED MAX AMOUNT OF MONEY;\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -268,7 +268,7 @@ void getInfo(sqlite3 *db) {
                             " DESC LIMIT 1) GROUP BY Pilots.id;");
                 break;
             case 11:
-                while(TRUE){
+                while (TRUE) {
                     printf("SELECT by:\n"
                            "1. helicopter id\n"
                            "2. pilot id\n");
@@ -277,7 +277,7 @@ void getInfo(sqlite3 *db) {
 
                         fgets(choice_buff, 10, stdin);
                         int choice = atoi(choice_buff);
-                        switch(choice){
+                        switch (choice) {
                             case 1:
                                 printf("Enter the helicopter id\n");
                                 fgets(buff, 20, stdin);
@@ -316,9 +316,10 @@ void getInfo(sqlite3 *db) {
         printf("Choose info type:\n"
                "1. MY DATA;\n"
                "2. MY HELICOPTER;\n"
-               "3. MY HELICOPTER TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME\n"
-               "4. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD\n"
-               "5. GET MY DONE FLIGHTS\n");
+               "3. MY HELICOPTER TOTAL FLIGHT TIME AFTER REPAIR AND USABILITY TIME;\n"
+               "4. LIST FLIGHTS, TOTAL CARGO WEIGHT AND PEOPLE AMOUNT IN SELECTED PERIOD;\n"
+               "5. GET MY DONE FLIGHTS;\n"
+               "6. GET MY SALARY FOR SELECTED PERIOD AND SELECTED FLIGHTS;\n");
 
         fgets(buff, 20, stdin);
         des = atoi(buff);
@@ -382,6 +383,24 @@ void getInfo(sqlite3 *db) {
                 strcat(sql, current_ID);
                 strcat(sql, ";");
                 break;
+            case 6: {
+                printf("Enter the period start date(yyyy-mm-dd):\n");
+                fgets(buff, 20, stdin);
+                buff[strlen(buff) - 1] = '\0';
+                char buff1[20];
+                printf("Enter the period end date(yyyy-mm-dd):\n");
+                fgets(buff1, 20, stdin);
+                buff1[strlen(buff1) - 1] = '\0';
+                char buff2[100];
+                printf("Enter flight(s) id(s) separated by commas:\n");
+                fgets(buff2, 100, stdin);
+                buff2[strlen(buff2) - 1] = '\0';
+                sprintf(sql, "SELECT Pilots.id, Pilots.surname, Pilots.helicopter_id, sum(Flights.price * "
+                             "Types.salary_ratio) as total_salary FROM Flights INNER JOIN Types on Types.id = Flights.type_id INNER JOIN "
+                             "Pilots on Pilots.helicopter_id = Flights.helicopter_id WHERE Flights.date BETWEEN '%s' AND '%s' AND Pilots.id = %s AND Flights.id IN (%s);",
+                             buff, buff1, current_ID, buff2);
+                }
+                break;
             default:
                 printf("Wrong parameter\n");
                 return;
@@ -393,16 +412,16 @@ void getInfo(sqlite3 *db) {
 }
 
 int check_helicopter(void *data, int argc, char **argv, char **azColName) {
-    if (!argv[0]){
+    if (!argv[0]) {
         duration_check_passed = FALSE;
     }
     duration_check_passed = TRUE;
     return 0;
 }
 
-void check_helicopter_flight_time(sqlite3* db, char* helicopter_id, char* duration){
+void check_helicopter_flight_time(sqlite3 *db, char *helicopter_id, char *duration) {
     char sql[300];
-    strcpy(sql,"SELECT * FROM Helicopters WHERE Helicopters.id = ");
+    strcpy(sql, "SELECT * FROM Helicopters WHERE Helicopters.id = ");
     strcat(sql, helicopter_id);
     strcat(sql, " AND Helicopters.flights_resource > ");
     strcat(sql, duration);
@@ -410,13 +429,13 @@ void check_helicopter_flight_time(sqlite3* db, char* helicopter_id, char* durati
     executeSQL(db, sql, check_helicopter, NULL, FALSE);
 }
 
-int AskFlightDuration(const char* msg, char* sql, sqlite3* db, char* helicopter_id){
+int AskFlightDuration(const char *msg, char *sql, sqlite3 *db, char *helicopter_id) {
     printf("%s", msg);
     char buffer[10];
     fgets(buffer, 10, stdin);
     strcpy(current_buff, buffer);
     check_helicopter_flight_time(db, helicopter_id, buffer);
-    if (duration_check_passed == FALSE){
+    if (duration_check_passed == FALSE) {
         return -1;
     }
     strcat(sql, buffer);
@@ -474,12 +493,12 @@ void InsertIntoDB(sqlite3 *db) {
             printf("Unable to insert flight with such duration to this helicopter\n");
             return;
         }
-         
-        
+
+
         sprintf(sql_update_query, "Update Helicopters set flights_resource=flights_resource-%s where id=%s;", current_buff, helicopter_id);
-        
+
         AskParameterByID(db, "Select * from Types;", "\nChoose type by ID:\n", sql, TRUE);
-        
+
         executeSQL(db, sql_update_query, NULL, NULL, FALSE);
 
     } else if (des == 3) {
@@ -496,7 +515,7 @@ void InsertIntoDB(sqlite3 *db) {
         printf("\nWrong parameter\n");
         return;
     }
-    executeSQL(db, sql, NULL, NULL, TRUE); 
+    executeSQL(db, sql, NULL, NULL, TRUE);
 }
 
 void SelectDeleteFromDB(sqlite3 *db, short to_delete) {
@@ -555,32 +574,34 @@ void SelectDeleteFromDB(sqlite3 *db, short to_delete) {
     }
 }
 
-void ChooseFunction(sqlite3* db){
+void ChooseFunction(sqlite3 *db) {
     char sql[1000];
     char buffer[100], buffer1[100];
     int choice;
 
     printf("\nChoose the function:\n"
            "1. TOTAL CREWS SALARY IN SELECTED PERIOD\n"
-           "2. TOTAL SALARY FOR SELECTED PILOT IN SELECTED PERIOD FOR SELECTED FLIGHTS\n");
+           "2. TOTAL SALARY FOR SELECTED PILOT IN SELECTED PERIOD FOR SELECTED FLIGHTS\n"
+           "3. TOTAL SALARY FOR SELECTED PILOT IN SELECTED PERIOD;\n");
 
     fgets(buffer, 20, stdin);
     choice = atoi(buffer);
 
+    printf("Enter the period start date(yyyy-mm-dd):\n");
+    fgets(buffer, 100, stdin);
+    buffer[strlen(buffer) - 1] = '\0';
+    printf("Enter the period end date(yyyy-mm-dd):\n");
+    fgets(buffer1, 100, stdin);
+    buffer1[strlen(buffer1) - 1] = '\0';
+
     switch (choice) {
         case 1:
             strcpy(sql, "INSERT INTO Sums(id, period_start, period_end, total_salary) VALUES (NULL, '");
-            printf("Enter the period start date(yyyy-mm-dd):\n");
-            fgets(buffer, 100, stdin);
-            buffer[strlen(buffer) - 1] = '\0';
-            printf("Enter the period end date(yyyy-mm-dd):\n");
-            fgets(buffer1, 100, stdin);
-            buffer1[strlen(buffer1) - 1] = '\0';
             strcat(sql, buffer);
             strcat(sql, "', '");
             strcat(sql, buffer1);
-            strcat(sql,"', (SELECT sum(Flights.price * Types.salary_ratio) FROM Flights INNER JOIN Types ON "
-                       "Flights.type_id = Types.id WHERE Flights.date BETWEEN '");
+            strcat(sql, "', (SELECT sum(Flights.price * Types.salary_ratio) FROM Flights INNER JOIN Types ON "
+                        "Flights.type_id = Types.id WHERE Flights.date BETWEEN '");
             strcat(sql, buffer);
             strcat(sql, "' AND '");
             strcat(sql, buffer1);
@@ -589,13 +610,7 @@ void ChooseFunction(sqlite3* db){
             executeSQL(db, sql, NULL, NULL, TRUE);
             strcpy(sql, "SELECT * FROM Sums;");
             break;
-        case 2:{
-            printf("Enter the period start date(yyyy-mm-dd):\n");
-            fgets(buffer, 100, stdin);
-            buffer[strlen(buffer) - 1] = '\0';
-            printf("Enter the period end date(yyyy-mm-dd):\n");
-            fgets(buffer1, 100, stdin);
-            buffer1[strlen(buffer1) - 1] = '\0';
+        case 2: {
             printf("Enter pilot id:\n");
             char pilot_id[10];
             fgets(pilot_id, 10, stdin);
@@ -616,6 +631,17 @@ void ChooseFunction(sqlite3* db){
             strcat(sql, ");");
         }
             break;
+        case 3:{
+            printf("Enter pilot id:\n");
+            char pilot_id[10];
+            fgets(pilot_id, 10, stdin);
+            pilot_id[strlen(pilot_id) - 1] = '\0';
+            sprintf(sql, "SELECT Pilots.id, Pilots.surname, Pilots.helicopter_id, sum(Flights.price * "
+                         "Types.salary_ratio) as total_salary FROM Flights INNER JOIN Types on Types.id = Flights.type_id INNER JOIN "
+                         "Pilots on Pilots.helicopter_id = Flights.helicopter_id WHERE Flights.date BETWEEN '%s' AND '%s' AND Pilots.id = %s;",
+                    buffer, buffer1, pilot_id);
+            }
+            break;
         default:
             printf("Wrong parameter\n");
             return;
@@ -625,6 +651,20 @@ void ChooseFunction(sqlite3* db){
 }
 
 void AdminAction(sqlite3 *db) {
+    {
+        char password[100];
+        char login[100];
+        printf("Enter login: ");
+        fgets(login, 100, stdin);
+        printf("Enter password: ");
+        fgets(password, 100, stdin);
+        if (strcmp(login, "admin\n") != 0 || strcmp(password, "admin\n") != 0){
+            printf("You are not admin\n");
+            return;
+        }
+    }
+
+
     char buff[20];
     int des;
     printf("\nChoose the action:\n"
@@ -635,7 +675,7 @@ void AdminAction(sqlite3 *db) {
 
     fgets(buff, 20, stdin);
     des = atoi(buff);
-	
+
     switch (des) {
         case 1:
             InsertIntoDB(db);
